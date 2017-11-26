@@ -27,7 +27,8 @@ def connect_wifi():
   print("connect_wifi..\r\n")
   sta_if = network.WLAN(network.STA_IF); sta_if.active(True);
   # sta_if.scan()                             # Scan for available access points
-  sta_if.connect("MasterHax_2.4G", "wittyercheese551") # Connect to an AP
+  # sta_if.connect("MasterHax_2.4G", "wittyercheese551") # Connect to an AP
+  sta_if.connect("LabNet", "mytradio") # Connect to an AP
   while (sta_if.isconnected() != True):                      # Check for successful connection
     time.sleep_ms(100)
   gc.collect()
@@ -59,19 +60,22 @@ def mqtt_sub_cb(topic, msg):
           resp_buf = {'status':404, 'data':'', 'msg':path}
           mqttclient.publish(mqtt_topic_out, ujson.dumps(resp_buf))
         else:
-          return_data = {'type':'REP_READ_FILE', 'path': path, 'data': f.read()}
+          return_data = {'type':'REP_READ_FILE', 'path':path, 'data':f.read()}
           resp_buf = {'status':200, 'data':return_data, 'msg':''}
           mqttclient.publish(mqtt_topic_out, ujson.dumps(resp_buf))
 
       elif cmd == 'CMD_WRITE_FILE':
-        path = jsondata.get('path')
-        # recvfile = jsondata.get('data')
-        f = open(path, 'wb')
-        f.write(jsondata.get('data'))
-        f.close()
-        return_data = {'type':'REP_WRITE_FILE', 'path': path, 'data':''}
-        resp_buf = {'status':200, 'data':return_data, 'msg':''}
-        mqttclient.publish(mqtt_topic_out, ujson.dumps(resp_buf))
+        try:
+          path = jsondata.get('path')
+          f = open(path, 'wb')
+        except OSError:
+          pass
+        else:
+          f.write(jsondata.get('data'))
+          f.close()
+          return_data = {'type':'REP_WRITE_FILE', 'path': path, 'data':''}
+          resp_buf = {'status':200, 'data':return_data, 'msg':''}
+          mqttclient.publish(mqtt_topic_out, ujson.dumps(resp_buf))
   
   elif topic == mqtt_topic_repl_in :
     m5.termin(msg)
@@ -85,7 +89,7 @@ def mqtt_handle():
   # mqttclient = MQTTClient("umqtt_client", server)
   mqttclient.set_callback(mqtt_sub_cb)
   mqttclient.connect()
-  mqttclient.subscribe(mqtt_topic_in)
+  mqttclient.subscribe(topic=mqtt_topic_in, qos=1)
   mqttclient.subscribe(mqtt_topic_repl_in)
   # c.publish(b"foo_topic", str(uos.listdir()))
   # f=open('main.py', 'rb');
