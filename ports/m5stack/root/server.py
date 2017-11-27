@@ -24,6 +24,7 @@ import sys, os, json, time, _thread
 m5cloud_host = "mqtt.m5stack.com"
 m5cloud_port = 1883
 chipid_str = '30aea449be0c'
+user_path = 'server_data/'
 
 mqtt_topic_out = '/M5Cloud/'+chipid_str+'/out'
 mqtt_topic_in  = '/M5Cloud/'+chipid_str+'/in'
@@ -56,51 +57,127 @@ except:
 #   "data": "import m5; m5.print('hello world', 0, 0);"
 # }
 
+def list_file_tree(path):
+    try:
+        l = os.listdir(path)
+    except:
+        return path
+    else:
+        path_list = []
+        for i in l:
+            path_list.append(list_file_tree(path+'/'+i))
+        return path_list
+
+
+
 def publish_node_data(node_id, payload):
     mqttc.publish('/M5Cloud/'+node_id+'/in', payload, qos=1)
+    pass
+
+
+def read_node_file_cmd(node_id, file_path):
+    payload = {'cmd':'CMD_READ_FILE', 'path':file_path}
+    payload = json.dumps(payload)
+    publish_node_data(node_id, payload)
+
+
+def read_node_file_list_cmd(node_id, file_list):
+    for file_path in file_list:
+        if type(file_path) == str:
+            read_node_file_cmd(node_id, file_path)
+        elif type(file_path) == list:
+            read_node_file_list_cmd(node_id, file_path)
+
+
+def read_node_file(node_id, path, file):
+    if path[0] == '/':
+        path = user_path + node_id + path
+    else:
+        path = user_path + node_id+'/'+path
+    
+    path_dir = os.path.split(path)[0]
+    file_name = os.path.split(path)[1]
+    print('read_node_file:')
+    print(path)
+    if not os.path.exists(path_dir):
+        os.makedirs(path_dir)
+    f = open(path, 'w')
+    print('file:')
+    print(file)
+    f.write(file)
+    f.close()
+
+
+def pull_node_file(node_id):
+    payload = {'cmd':'CMD_LISTDIR', 'path':''}
+    payload = json.dumps(payload)
+    publish_node_data(node_id, payload)
 
 
 def write_node_file(node_id, local_path, node_path):
     print(local_path)
-    f = open(local_path)
-    payload = {'cmd':'CMD_WRITE_FILE', 'path':node_path, 'data':f.read()}
-    payload = json.dumps(payload)
-    print("write node:"+node_id+" file:"+local_path+ " buffer:")
-    # print(payload)
-    publish_node_data(node_id, payload)
-    f.close()
+    try:
+        # f = open(user_path + node_id + '/' + local_path)
+        f = open(local_path)
+        payload = {'cmd':'CMD_WRITE_FILE', 'path':node_path, 'data':f.read()}
+        payload = json.dumps(payload)
+        print("write node:"+node_id+" file:"+local_path+ " buffer:")
+        # print(payload)
+        publish_node_data(node_id, payload)
+        f.close()
+    except:
+        pass
 
 
-def read_node_file_cmd(node_id, node_path):
-    payload = {'cmd':'CMD_READ_FILE', 'path':node_path}
-    payload = json.dumps(payload)
-    publish_node_data(node_id, payload)
-
-
-def pull_node_file(node_id):
-    pass
+def write_node_file_list(node_id, path):
+    try:
+        l = os.listdir(path)
+    except:
+        write_node_file(node_id, path, path)
+        pass
+    else:
+        for i in l:
+            write_node_file_list(node_id, path+'/'+i)
+        pass
 
 
 def push_node_file(node_id):
     local_path = 'server_data/'+node_id+'/'
-    file_table = os.listdir(local_path)
-    print(file_table)
-    for file in file_table:
-        # try:
-        # print(file)
-        write_node_file(node_id, local_path+file, file)
-        # time.sleep(0.05)
-        # except:
-        #     print('except')
-        #     pass
-        
+    os.chdir(local_path)
+    write_node_file_list(node_id, '.')
+    os.chdir('./../../')
 
-def on_connect(mqttc, obj, flags, rc):
-    print("rc: " + str(rc))
 
 
 def on_message(mqttc, obj, msg):
     print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
+    topic = msg.topic.split('/')
+
+    if topic[1] == 'M5Cloud':
+        node_id = topic[2]
+        print('msg form node_id:'+node_id)
+        try:
+            jsonbuf = json.loads(msg.payload)
+            if jsonbuf.get('status') == 200:
+                jsondata = jsonbuf.get('data')
+                rep_type = jsondata.get('type')
+
+                if rep_type == 'REP_READ_FILE':
+                    read_node_file(node_id, jsondata.get('path'), jsondata.get('data'))
+
+                elif rep_type == 'REP_LISTDIR':
+                    read_node_file_list_cmd(node_id, jsondata.get('data'))
+                    pass
+
+                elif rep_type == 'REP_WRITE_FILE':
+                    pass
+        except:
+            print('Json parser fail!')
+            pass
+
+
+def on_connect(mqttc, obj, flags, rc):
+    print("rc: " + str(rc))
 
 
 def on_publish(mqttc, obj, mid):
@@ -134,18 +211,26 @@ mqttc.connect(m5cloud_host, m5cloud_port, 60)
 mqttc.subscribe(mqtt_topic_out, 0)
 # mqttc.subscribe(mqtt_topic_repl_out, 0)
 
-# f = open('webrepl.py')
-# mqttc.publish(mqtt_topic_repl_out, f.read(), qos=2)
 if cmd_line == 'put':
     local_file = sys.argv[2]
     node_path = sys.argv[3]
     update_node_file(chipid_str, local_file, node_path)
+elif cmd_line == 'get':
+    node_id = sys.argv[2]
+    node_path = sys.argv[3]
+    read_node_file_cmd(node_id, node_path)
 elif cmd_line == 'push':
     node_id = sys.argv[2]
     push_node_file(node_id)
+elif cmd_line == 'pull':
+    node_id = sys.argv[2]
+    pull_node_file(node_id)
+elif cmd_line == 'test':
+    print(sys.argv[2])
+    print(list_file_tree(sys.argv[2]))
 
-# mqttc.loop_forever()
-_thread.start_new_thread(mqtt_loop_handle, ("mqtt_loop_handle", ))
+mqttc.loop_forever()
+# _thread.start_new_thread(mqtt_loop_handle, ("mqtt_loop_handle", ))
 
-while True:
-    time.sleep(1)
+# while True:
+#     time.sleep(1)
