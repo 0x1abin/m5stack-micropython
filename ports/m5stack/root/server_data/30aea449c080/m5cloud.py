@@ -1,12 +1,8 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
 import os, machine, ubinascii, ujson, m5
 import network, _thread, time, umqtt, uerrno
 
 node_id = ubinascii.hexlify(machine.unique_id())
 mqttc = umqtt.MQTTClient(b'M5Core-'+node_id, "mqtt.m5stack.com")
-repl_enable = False
 
 topic_out = b'/M5Cloud/'+node_id+'/out'
 topic_in  = b'/M5Cloud/'+node_id+'/in'
@@ -16,7 +12,6 @@ print('topic_out:'+str(topic_out))
 print('topic_in:'+str(topic_in))
 print('topic_repl_out:'+str(topic_repl_out))
 print('topic_repl_in:'+str(topic_repl_in))
-
 
 def load_config(config):
   try:
@@ -54,18 +49,17 @@ def list_file_tree(path = ''):
 
 
 def makedirs_write_file(path, file):
-  path_list = path.rstrip('/').split('/')[:-1]
+  path_list = path.split('/')
   _path = ''
-  if path_list[0] == '':
-    _path = '/'
-  for i in path_list:
-    try:
-      _path += '/'+ i
-      os.mkdir(_path)
-    except:
-      pass
+  if len(path_list) > 1:
+    for i in range(1, len(path_list)-1):
+      try:
+        _path += '/'+ path_list[i]
+        os.mkdir(_path)
+      except:
+        pass
 
-  print('(M5Cloud) write file:%s' % (path))
+  print('write the file path:%s' % (path))
   f = open(path, 'wb')
   f.write(file)
   f.close()
@@ -100,7 +94,6 @@ def mqtt_sub_cb(topic, msg):
           resp_buf = {'status':404, 'data':'', 'msg':path}
           mqttc.publish(topic_out, ujson.dumps(resp_buf))
         else:
-          print('(M5Cloud) read file:%s' % path)
           return_data = {'type':'REP_READ_FILE', 'path':path, 'data':f.read()}
           resp_buf = {'status':200, 'data':return_data, 'msg':''}
           mqttc.publish(topic_out, ujson.dumps(resp_buf))
@@ -108,16 +101,9 @@ def mqtt_sub_cb(topic, msg):
 
       elif cmd == 'CMD_WRITE_FILE':
         makedirs_write_file(jsondata.get('path'), jsondata.get('data'))
-
-      elif cmd == 'CMD_REPL_SET':
-        global repl_enable
-        repl_enable = jsondata.get('value')
-        print('repl_enable:%d' % (repl_enable))
   
-  elif topic == topic_repl_in:
-    global repl_enable
-    if repl_enable:
-      m5.termin(msg)
+  elif topic == topic_repl_in :
+    m5.termin(msg)
 
 
 # Test reception e.g. with:
@@ -125,17 +111,18 @@ def mqtt_handle():
   mqttc.set_callback(mqtt_sub_cb)
   mqttc.connect()
   print("Connected M5Cloud MQTT Server\r\n")
-  mqttc.subscribe(topic_in, qos=1)
+  mqttc.subscribe(topic=topic_in, qos=1)
   mqttc.subscribe(topic_repl_in)
+
   while True:
-    # Non-blocking wait for message
-    mqttc.check_msg()
-    global repl_enable
-    if repl_enable:
+    if True:
+      # Non-blocking wait for message
+      mqttc.check_msg();
+      # c.wait_msg()
       rambuff = m5.termout_getch()
       if rambuff[0] != 0:
         mqttc.publish(topic_repl_out, rambuff)
-    time.sleep_ms(50)
+      time.sleep_ms(50)
   mqttc.disconnect()
 
 

@@ -1,8 +1,6 @@
 # This file is executed on every boot (including wake-boot from deepsleep)
 from machine import Pin
 import network, _thread, upip, time, m5
-from micropython import const
-
 
 def exists(fname):
   try:

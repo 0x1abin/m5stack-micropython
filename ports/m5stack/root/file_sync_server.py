@@ -9,8 +9,6 @@ user_path = 'server_data/'
 webserver_topic_out = '/M5Cloud/webserver/out'
 webserver_topic_in = '/M5Cloud/webserver/in'
 
-# write_send_count = {'0':0}
-# write_recv_count = {'0':0}
 
 def webserver_rpc_handle(jsondata):
     rpc = json.loads(jsondata)
@@ -33,8 +31,6 @@ def webserver_rpc_handle(jsondata):
 
 
 def connect_node(node_id):
-    # write_send_count[node_id] = 0
-    # write_recv_count[node_id] = 0
     mqtt_topic_out = '/M5Cloud/'+node_id+'/out'
     mqttc.subscribe(mqtt_topic_out, qos=1)
     print('subscribe:%s'%(mqtt_topic_out))
@@ -110,8 +106,6 @@ def write_node_file(node_id, local_path, node_path):
         payload = json.dumps(payload)
         print("write node:"+node_id+" file:"+local_path)
         # print(payload)
-        # global write_send_count
-        # write_send_count[node_id] += 1
         publish_node_data(node_id, payload)
         f.close()
     except:
@@ -130,13 +124,6 @@ def write_node_file_list(node_id, path):
 
 def push_node_file(node_id):
     connect_node(node_id)
-    # try:
-    #     write_send_count.setdefault(node_id, 0)
-    #     write_recv_count.setdefault(node_id, 0)
-    # except:
-    #     print('write_send_count fail')
-    # write_send_count[node_id] = 0
-    # write_recv_count[node_id] = 0
     local_path = 'server_data/'+node_id+'/'
     os.chdir(local_path)
     write_node_file_list(node_id, '.')
@@ -167,10 +154,8 @@ def on_message(mqttc, obj, msg):
                 elif rep_type == 'REP_LISTDIR':
                     read_node_file_list_cmd(node_id, jsondata.get('data'))
 
-                # elif rep_type == 'REP_WRITE_FILE':
-                #     write_recv_count[node_id] += 1
-                #     if write_recv_count[node_id] == write_send_count[node_id]:
-                #         print("node:%s is write done." % (node_id) )
+                elif rep_type == 'REP_WRITE_FILE':
+                    pass
                     
         elif topic[1] == 'webserver' and topic[2] == 'in':  
             webserver_rpc_handle(msg.payload)

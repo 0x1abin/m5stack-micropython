@@ -1,3 +1,33 @@
+// To Server
+{
+  "method":"",
+  "params":{
+    "node_id":"30aea449be0c",
+    "data":"off"
+  },
+  "id":123
+}
+
+{
+  "method":"pull_node_file",
+  "params":["30aea449be0c"],
+  "id":123
+}
+
+{
+  "id":1,
+  "result":["ok"]
+}
+
+{
+  "id":1,
+  "error":{
+    "code":123,
+    "message":"xxxxx"
+  }
+}
+
+//  To node
 {
   "cmd":"CMD_LISTDIR",
   "path":"/"
@@ -6,6 +36,11 @@
 {
   "cmd":"CMD_READ_FILE",
   "path":"/main.py"
+}
+
+{
+  "cmd":"CMD_REPL_SET",
+  "value":1
 }
 
 {

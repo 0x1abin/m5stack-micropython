@@ -378,7 +378,7 @@ class Pyboard:
 # but for Python3 we want to provide the nicer version "exec"
 setattr(Pyboard, "exec", Pyboard.exec_)
 
-def execfile(filename, device='/dev/ttyACM0', baudrate=115200, user='micro', password='python'):
+def execfile(filename, device='/dev/tty.SLAB_USBtoUART', baudrate=115200, user='micro', password='python'):
     pyb = Pyboard(device, baudrate, user, password)
     pyb.enter_raw_repl()
     output = pyb.execfile(filename)
@@ -389,7 +389,7 @@ def execfile(filename, device='/dev/ttyACM0', baudrate=115200, user='micro', pas
 def main():
     import argparse
     cmd_parser = argparse.ArgumentParser(description='Run scripts on the pyboard.')
-    cmd_parser.add_argument('--device', default='/dev/ttyACM0', help='the serial device or the IP address of the pyboard')
+    cmd_parser.add_argument('--device', default='/dev/tty.SLAB_USBtoUART', help='the serial device or the IP address of the pyboard')
     cmd_parser.add_argument('-b', '--baudrate', default=115200, help='the baud rate of the serial device')
     cmd_parser.add_argument('-u', '--user', default='micro', help='the telnet login username')
     cmd_parser.add_argument('-p', '--password', default='python', help='the telnet login password')
