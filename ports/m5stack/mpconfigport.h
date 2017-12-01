@@ -141,7 +141,7 @@
 #define MICROPY_PY_USSL_FINALISER           (1)
 #define MICROPY_PY_WEBSOCKET                (1)
 #define MICROPY_PY_FRAMEBUF                 (1)
-#define MICROPY_PY_LCD_TERMINAL             (1)
+#define MICROPY_PY_LCD_TERMINAL             (0)
 // #define MICROPY_PY_OS_DUPTERM               (1)
 
 // fatfs configuration

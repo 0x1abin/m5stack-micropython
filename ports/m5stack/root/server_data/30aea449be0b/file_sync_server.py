@@ -5,36 +5,50 @@ import sys, os, json, time
 
 m5cloud_host = 'mqtt.m5stack.com'
 m5cloud_port = 1883
-user_path = 'server_data/'
 webserver_topic_out = '/M5Cloud/webserver/out'
 webserver_topic_in = '/M5Cloud/webserver/in'
+root_path = os.getcwd()
+node = {"node_id":{"send":0,'recv':0,"msgid":0}}
+user_path = 'server_data'
+try:
+    os.mkdir(user_path)
+except:
+    pass
 
-write_send_count = {'0':0}
-write_recv_count = {'0':0}
 
 def webserver_rpc_handle(jsondata):
-    rpc = json.loads(jsondata)
-    method = rpc['method']
-    node_id = rpc['params'][0]
-    if method == "connect_node":
-        connect_node(node_id)
-    elif method == "disconnect_node":
-        disconnect_node(node_id)
-    elif method == "pull_node_file":
-        pull_node_file(node_id)
-    elif method == "push_node_file":
-        push_node_file(node_id)
-    elif method == "repl_node_set":
-        repl_node_set(node_id, rpc['params'][1])
+    try:
+        rpc = json.loads(jsondata)
+        method = rpc['method']
+        node_id = rpc['params'][0]
+        msgid = rpc['id']
+        node[node_id] = {"msgid":msgid}
 
-    payload = {'result':['ok'], 'id':rpc['id']}
+        if method == "connect_node":
+            connect_node(node_id)
+        elif method == "disconnect_node":
+            disconnect_node(node_id)
+        elif method == "pull_node_file":
+            pull_node_file(node_id)
+        elif method == "push_node_file":
+            push_node_file(node_id)
+        elif method == "repl_node_set":
+            repl_node_set(node_id, rpc['params'][1])
+    except:
+        print('webserver_rpc_handle parser!')
+
+
+def webserver_rpc_result(res, id, params=0):
+    payload = {'result':[res], 'id':id}
     payload = json.dumps(payload)
     mqttc.publish(webserver_topic_out, payload, qos=1)
 
 
 def connect_node(node_id):
-    # write_send_count[node_id] = 0
-    # write_recv_count[node_id] = 0
+    try:
+        os.mkdir(user_path + '/' + node_id)
+    except:
+        pass
     mqtt_topic_out = '/M5Cloud/'+node_id+'/out'
     mqttc.subscribe(mqtt_topic_out, qos=1)
     print('subscribe:%s'%(mqtt_topic_out))
@@ -65,6 +79,7 @@ def publish_node_data(node_id, payload):
 def read_node_file_cmd(node_id, file_path):
     payload = {'cmd':'CMD_READ_FILE', 'path':file_path}
     payload = json.dumps(payload)
+    node[node_id]["send"] += 1
     publish_node_data(node_id, payload)
 
 
@@ -72,15 +87,15 @@ def read_node_file_list_cmd(node_id, file_list):
     for file_path in file_list:
         if type(file_path) == list:
             read_node_file_list_cmd(node_id, file_path)
-        elif type(file_path) == str:
+        else:
             read_node_file_cmd(node_id, file_path)
 
 
 def read_node_file(node_id, path, file):
     if path[0] == '/':
-        path = user_path + node_id + path
+        path = user_path + '/' + node_id + path
     else:
-        path = user_path + node_id+'/'+path
+        path = user_path + '/' + node_id+'/'+path
     
     path_dir = os.path.split(path)[0]
     file_name = os.path.split(path)[1]
@@ -92,17 +107,6 @@ def read_node_file(node_id, path, file):
     f.close()
 
 
-def pull_node_file(node_id):
-    connect_node(node_id)
-    try:
-        os.mkdir(user_path + node_id)
-    except:
-        pass
-    payload = {'cmd':'CMD_LISTDIR', 'path':''}
-    payload = json.dumps(payload)
-    publish_node_data(node_id, payload)
-
-
 def write_node_file(node_id, local_path, node_path):
     try:
         f = open(local_path)
@@ -110,12 +114,10 @@ def write_node_file(node_id, local_path, node_path):
         payload = json.dumps(payload)
         print("write node:"+node_id+" file:"+local_path)
         # print(payload)
-        # global write_send_count
-        write_send_count[node_id] += 1
+        node[node_id]['send'] += 1
         publish_node_data(node_id, payload)
         f.close()
     except:
-        print('error: write_node_file')
         pass
 
 
@@ -129,25 +131,38 @@ def write_node_file_list(node_id, path):
             write_node_file_list(node_id, path+'/'+i)
 
 
-def push_node_file(node_id):
+def pull_node_file(node_id):
+    print('pull node:%s' % (node_id))
+    node[node_id]["send"] = 0
+    node[node_id]["recv"] = 0
     connect_node(node_id)
-    try:
-        write_send_count.setdefault(node_id, 0)
-        write_recv_count.setdefault(node_id, 0)
-    except:
-        print('write_send_count fail')
-    # write_send_count[node_id] = 0
-    # write_recv_count[node_id] = 0
+    payload = {'cmd':'CMD_LISTDIR', 'path':''}
+    payload = json.dumps(payload)
+    publish_node_data(node_id, payload)
+
+
+def push_node_file(node_id):
     local_path = 'server_data/'+node_id+'/'
+    print('push node:%s file:%s' % (node_id, os.listdir(local_path)))
+    node[node_id]["send"] = 0
+    node[node_id]["recv"] = 0
+    connect_node(node_id)
     os.chdir(local_path)
     write_node_file_list(node_id, '.')
-    os.chdir('./../../')
+    os.chdir(root_path)
+    # os.chdir('./../../')
 
 
 def repl_node_set(node_id, onoff):
     payload = {'cmd':'CMD_REPL_SET', 'value':onoff}
     payload = json.dumps(payload)
     publish_node_data(node_id, payload)
+
+
+def repl_reset_node(node_id):
+    repl_node_set(node_id, True)
+    payload = 'import machine; machine.reset()\r\n'
+    mqttc.publish('/M5Cloud/'+node_id+'/repl/in', payload, qos=1)
 
 
 def on_message(mqttc, obj, msg):
@@ -164,19 +179,30 @@ def on_message(mqttc, obj, msg):
 
                 if rep_type == 'REP_READ_FILE':
                     read_node_file(node_id, jsondata.get('path'), jsondata.get('data'))
+                    node[node_id]["recv"] += 1
+                    if node[node_id]['send'] == node[node_id]['recv']:
+                        print('Read done! node_id:%s , files total:%d' % (node_id, node[node_id]['recv']))
+                        webserver_rpc_result('ok', node[node_id]['msgid'])
 
                 elif rep_type == 'REP_LISTDIR':
                     read_node_file_list_cmd(node_id, jsondata.get('data'))
 
-                # elif rep_type == 'REP_WRITE_FILE':
-                #     write_recv_count[node_id] += 1
-                #     if write_recv_count[node_id] == write_send_count[node_id]:
-                #         print("node:%s is write done." % (node_id) )
-                    
+                elif rep_type == 'REP_WRITE_FILE':
+                    node[node_id]['recv'] += 1
+                    if node[node_id]['send'] == node[node_id]['recv']:
+                        repl_reset_node(node_id)
+                        print('Write done! node_id:%s , files total:%d' % (node_id, node[node_id]['recv']))
+                        webserver_rpc_result('ok', node[node_id]['msgid'])
+
         elif topic[1] == 'webserver' and topic[2] == 'in':  
+            print('web req:')
+            print(msg.payload)
             webserver_rpc_handle(msg.payload)
     except:
         print('Json parser fail!')
+        print('topic:%s' % (msg.topic))
+        print('payload:%s' % (msg.payload))
+
         pass
 
 
@@ -215,6 +241,7 @@ mqttc.connect(m5cloud_host, m5cloud_port, 60)
 mqttc.subscribe(webserver_topic_in, 1)
 # mqttc.subscribe(mqtt_topic_out, 1)
 # mqttc.subscribe(mqtt_topic_repl_out, 0)
+
 
 try:
     cmd_line = sys.argv[1]

@@ -46,7 +46,12 @@
 {
   "cmd":"CMD_WRITE_FILE",
   "path":"/main.py",
+  "block":3,
   "data": "import m5; m5.print('hello world', 0, 0);"
+}
+
+{
+  "cmd":"CMD_RESET"
 }
 
 
@@ -75,6 +80,7 @@
 CMD_LISTDIR
 CMD_READ_FILE
 CMD_WRITE_FILE
+CMD_REPL_SET
 
 // Respond
 REP_LISTDIR

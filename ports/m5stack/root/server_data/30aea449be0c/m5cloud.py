@@ -113,6 +113,9 @@ def mqtt_sub_cb(topic, msg):
         global repl_enable
         repl_enable = jsondata.get('value')
         print('repl_enable:%d' % (repl_enable))
+
+      elif cmd == 'CMD_RESET':
+        machine.reset()
   
   elif topic == topic_repl_in:
     global repl_enable
