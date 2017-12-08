@@ -46,7 +46,8 @@
 {
   "cmd":"CMD_WRITE_FILE",
   "path":"/main.py",
-  "block":3,
+  "part":[1,5],
+  "crc":123,
   "data": "import m5; m5.print('hello world', 0, 0);"
 }
 

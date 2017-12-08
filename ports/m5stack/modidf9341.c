@@ -43,29 +43,29 @@ inline color_t U32toColor(uint32_t c) {
     return (*((color_t*)(&c)));
 }
 
-STATIC mp_obj_t M5_init() {
+STATIC mp_obj_t idf9341_init() {
     TFT_init();
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(M5_init_obj, M5_init);
+STATIC MP_DEFINE_CONST_FUN_OBJ_0(idf9341_init_obj, idf9341_init);
 
-STATIC mp_obj_t M5_TFT_drawPixel(mp_obj_t x, mp_obj_t y, mp_obj_t color) {
+STATIC mp_obj_t idf9341_drawPixel(mp_obj_t x, mp_obj_t y, mp_obj_t color) {
     int16_t gx = mp_obj_get_int(x);
     int16_t gy = mp_obj_get_int(y);
     uint32_t gc = mp_obj_get_int(color);
     TFT_drawPixel(gx, gy, U32toColor(gc), 1);
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_3(M5_TFT_drawPixel_obj, M5_TFT_drawPixel);
+STATIC MP_DEFINE_CONST_FUN_OBJ_3(idf9341_drawPixel_obj, idf9341_drawPixel);
 
-STATIC mp_obj_t M5_TFT_fillScreen(mp_obj_t c) {
+STATIC mp_obj_t idf9341_fillScreen(mp_obj_t c) {
     uint32_t gc = mp_obj_get_int(c);
     TFT_fillScreen(U32toColor(gc));
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(M5_TFT_fillScreen_obj, M5_TFT_fillScreen);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(idf9341_fillScreen_obj, idf9341_fillScreen);
 
-STATIC mp_obj_t M5_TFT_drawRect(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t idf9341_drawRect(size_t n_args, const mp_obj_t *args) {
     
     int16_t gx = mp_obj_get_int(args[0]);
     int16_t gy = mp_obj_get_int(args[1]);
@@ -75,9 +75,9 @@ STATIC mp_obj_t M5_TFT_drawRect(size_t n_args, const mp_obj_t *args) {
     TFT_drawRect(gx, gy, gw, gh, U32toColor(gcolor));
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(M5_TFT_drawRect_obj, 5, 5, M5_TFT_drawRect);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(idf9341_drawRect_obj, 5, 5, idf9341_drawRect);
 
-STATIC mp_obj_t M5_TFT_fillRect(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t idf9341_fillRect(size_t n_args, const mp_obj_t *args) {
     
     int16_t gx = mp_obj_get_int(args[0]);
     int16_t gy = mp_obj_get_int(args[1]);
@@ -87,9 +87,9 @@ STATIC mp_obj_t M5_TFT_fillRect(size_t n_args, const mp_obj_t *args) {
     TFT_fillRect(gx, gy, gw, gh, U32toColor(gcolor));
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(M5_TFT_fillRect_obj, 5, 5, M5_TFT_fillRect);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(idf9341_fillRect_obj, 5, 5, idf9341_fillRect);
 
-STATIC mp_obj_t M5_TFT_drawLine(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t idf9341_drawLine(size_t n_args, const mp_obj_t *args) {
     
     int16_t x0 = mp_obj_get_int(args[0]);
     int16_t y0 = mp_obj_get_int(args[1]);
@@ -99,9 +99,9 @@ STATIC mp_obj_t M5_TFT_drawLine(size_t n_args, const mp_obj_t *args) {
     TFT_drawLine(x0, y0, x1, y1, U32toColor(gcolor));
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(M5_TFT_drawLine_obj, 5, 5, M5_TFT_drawLine);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(idf9341_drawLine_obj, 5, 5, idf9341_drawLine);
 
-STATIC mp_obj_t M5_TFT_drawTriangle(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t idf9341_drawTriangle(size_t n_args, const mp_obj_t *args) {
     
     int16_t x0 = mp_obj_get_int(args[0]);
     int16_t y0 = mp_obj_get_int(args[1]);
@@ -113,9 +113,9 @@ STATIC mp_obj_t M5_TFT_drawTriangle(size_t n_args, const mp_obj_t *args) {
     TFT_drawTriangle(x0, y0, x1, y1, x2, y2, U32toColor(gcolor));
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(M5_TFT_drawTriangle_obj, 7, 7, M5_TFT_drawTriangle);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(idf9341_drawTriangle_obj, 7, 7, idf9341_drawTriangle);
 
-STATIC mp_obj_t M5_TFT_fillTriangle(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t idf9341_fillTriangle(size_t n_args, const mp_obj_t *args) {
     
     int16_t x0 = mp_obj_get_int(args[0]);
     int16_t y0 = mp_obj_get_int(args[1]);
@@ -127,9 +127,9 @@ STATIC mp_obj_t M5_TFT_fillTriangle(size_t n_args, const mp_obj_t *args) {
     TFT_fillTriangle(x0, y0, x1, y1, x2, y2, U32toColor(gcolor));
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(M5_TFT_fillTriangle_obj, 7, 7, M5_TFT_fillTriangle);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(idf9341_fillTriangle_obj, 7, 7, idf9341_fillTriangle);
 
-STATIC mp_obj_t M5_TFT_drawCircle(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t idf9341_drawCircle(size_t n_args, const mp_obj_t *args) {
     
     int16_t x = mp_obj_get_int(args[0]);
     int16_t y = mp_obj_get_int(args[1]);
@@ -138,9 +138,9 @@ STATIC mp_obj_t M5_TFT_drawCircle(size_t n_args, const mp_obj_t *args) {
     TFT_drawCircle(x, y, radius, U32toColor(gcolor));
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(M5_TFT_drawCircle_obj, 4, 4, M5_TFT_drawCircle);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(idf9341_drawCircle_obj, 4, 4, idf9341_drawCircle);
 
-STATIC mp_obj_t M5_TFT_fillCircle(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t idf9341_fillCircle(size_t n_args, const mp_obj_t *args) {
     
     int16_t x = mp_obj_get_int(args[0]);
     int16_t y = mp_obj_get_int(args[1]);
@@ -149,9 +149,9 @@ STATIC mp_obj_t M5_TFT_fillCircle(size_t n_args, const mp_obj_t *args) {
     TFT_fillCircle(x, y, radius, U32toColor(gcolor));
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(M5_TFT_fillCircle_obj, 4, 4, M5_TFT_fillCircle);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(idf9341_fillCircle_obj, 4, 4, idf9341_fillCircle);
 
-STATIC mp_obj_t M5_TFT_print(mp_obj_t str, mp_obj_t x, mp_obj_t y) {
+STATIC mp_obj_t idf9341_print(mp_obj_t str, mp_obj_t x, mp_obj_t y) {
     const char *strc = mp_obj_str_get_str(str);
     int xx = mp_obj_get_int(x);
     int yy = mp_obj_get_int(y);
@@ -159,17 +159,17 @@ STATIC mp_obj_t M5_TFT_print(mp_obj_t str, mp_obj_t x, mp_obj_t y) {
     TFT_print((char*)strc, (int)(xx), (int)(yy));
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_3(M5_TFT_print_obj, M5_TFT_print);
+STATIC MP_DEFINE_CONST_FUN_OBJ_3(idf9341_print_obj, idf9341_print);
 
 
-STATIC mp_obj_t M5_term_stdin(mp_obj_t str) {
+STATIC mp_obj_t idf9341_term_stdin(mp_obj_t str) {
     const char* instr = mp_obj_str_get_str(str);
     while(*instr) ringbuf_put(&stdin_ringbuf, *instr++);
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(M5_term_stdin_obj, M5_term_stdin);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(idf9341_term_stdin_obj, idf9341_term_stdin);
 
-STATIC mp_obj_t M5_termout_getch() {
+STATIC mp_obj_t idf9341_termout_getch() {
     uint8_t buffer[255];
     uint8_t index = 0;
     int c;
@@ -185,32 +185,32 @@ STATIC mp_obj_t M5_termout_getch() {
     // return mp_obj_new_str((const char*)(buffer), index+1, 1);
     return mp_obj_new_bytes((const byte*)(buffer), index+1);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(M5_termout_getch_obj, M5_termout_getch);
+STATIC MP_DEFINE_CONST_FUN_OBJ_0(idf9341_termout_getch_obj, idf9341_termout_getch);
 
 
-STATIC const mp_rom_map_elem_t M5_module_globals_table[] = {
+STATIC const mp_rom_map_elem_t idf9341_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_m5) },
 
-    { MP_ROM_QSTR(MP_QSTR_init), MP_ROM_PTR(&M5_init_obj) },
-    { MP_ROM_QSTR(MP_QSTR_drawPixel), MP_ROM_PTR(&M5_TFT_drawPixel_obj) },
-    { MP_ROM_QSTR(MP_QSTR_drawLine), MP_ROM_PTR(&M5_TFT_drawLine_obj) },
-    { MP_ROM_QSTR(MP_QSTR_fill), MP_ROM_PTR(&M5_TFT_fillScreen_obj) },
-    { MP_ROM_QSTR(MP_QSTR_fillScreen), MP_ROM_PTR(&M5_TFT_fillScreen_obj) },
-    { MP_ROM_QSTR(MP_QSTR_print), MP_ROM_PTR(&M5_TFT_print_obj) },
-    { MP_ROM_QSTR(MP_QSTR_drawRect), MP_ROM_PTR(&M5_TFT_drawRect_obj) },
-    { MP_ROM_QSTR(MP_QSTR_fillRect), MP_ROM_PTR(&M5_TFT_fillRect_obj) },
-    { MP_ROM_QSTR(MP_QSTR_drawCircle), MP_ROM_PTR(&M5_TFT_drawCircle) },
-    { MP_ROM_QSTR(MP_QSTR_fillCircle), MP_ROM_PTR(&M5_TFT_fillCircle_obj) },
-    { MP_ROM_QSTR(MP_QSTR_drawTriangle), MP_ROM_PTR(&M5_TFT_drawTriangle) },
-    { MP_ROM_QSTR(MP_QSTR_fillTriangle), MP_ROM_PTR(&M5_TFT_fillTriangle) },
+    { MP_ROM_QSTR(MP_QSTR_init), MP_ROM_PTR(&idf9341_init_obj) },
+    { MP_ROM_QSTR(MP_QSTR_drawPixel), MP_ROM_PTR(&idf9341_drawPixel_obj) },
+    { MP_ROM_QSTR(MP_QSTR_drawLine), MP_ROM_PTR(&idf9341_drawLine_obj) },
+    { MP_ROM_QSTR(MP_QSTR_fill), MP_ROM_PTR(&idf9341_fillScreen_obj) },
+    { MP_ROM_QSTR(MP_QSTR_fillScreen), MP_ROM_PTR(&idf9341_fillScreen_obj) },
+    { MP_ROM_QSTR(MP_QSTR_print), MP_ROM_PTR(&idf9341_print_obj) },
+    { MP_ROM_QSTR(MP_QSTR_drawRect), MP_ROM_PTR(&idf9341_drawRect_obj) },
+    { MP_ROM_QSTR(MP_QSTR_fillRect), MP_ROM_PTR(&idf9341_fillRect_obj) },
+    { MP_ROM_QSTR(MP_QSTR_drawCircle), MP_ROM_PTR(&idf9341_drawCircle) },
+    { MP_ROM_QSTR(MP_QSTR_fillCircle), MP_ROM_PTR(&idf9341_fillCircle_obj) },
+    { MP_ROM_QSTR(MP_QSTR_drawTriangle), MP_ROM_PTR(&idf9341_drawTriangle) },
+    { MP_ROM_QSTR(MP_QSTR_fillTriangle), MP_ROM_PTR(&idf9341_fillTriangle) },
 
-    { MP_ROM_QSTR(MP_QSTR_termin), MP_ROM_PTR(&M5_term_stdin_obj) },
-    { MP_ROM_QSTR(MP_QSTR_termout_getch), MP_ROM_PTR(&M5_termout_getch_obj) },
+    { MP_ROM_QSTR(MP_QSTR_termin), MP_ROM_PTR(&idf9341_term_stdin_obj) },
+    { MP_ROM_QSTR(MP_QSTR_termout_getch), MP_ROM_PTR(&idf9341_termout_getch_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(M5_module_globals, M5_module_globals_table);
+STATIC MP_DEFINE_CONST_DICT(idf9341_module_globals, idf9341_module_globals_table);
 
-const mp_obj_module_t M5_module = {
+const mp_obj_module_t idf9341_module = {
     .base = { &mp_type_module },
-    .globals = (mp_obj_dict_t*)&M5_module_globals,
+    .globals = (mp_obj_dict_t*)&idf9341_module_globals,
 };
 

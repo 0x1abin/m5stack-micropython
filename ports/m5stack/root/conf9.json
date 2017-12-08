@@ -1,0 +1,18 @@
+{
+  "device": {
+    "id": "esp32_49CCB4"
+  },
+  "bt": {
+    "enable": false
+  },
+  "wifi": {
+    "sta": {
+      "enable": true,
+      "ssid": "MasterHax_2.4G",
+      "pass": "wittyercheese551"
+    },
+    "ap": {
+      "enable": false
+    }
+  }
+}

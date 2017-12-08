@@ -1,6 +1,6 @@
 # This file is executed on every boot (including wake-boot from deepsleep)
 from machine import Pin
-import gc, m5
+import network, _thread, upip, time, m5
 from micropython import const
 
 
@@ -20,15 +20,11 @@ if btnA_pin.value() == False:
   print('Booting Button A is hold, Enable safe mode.')
   m5.lcd.print('Booting Button A is hold.\r\nEnable safe mode.', 0, 0)
   if exists('main.py'):
-    if exists('_main.py'):
-      uos.remove('_main.py')
-      uos.rename('main.py', '_main.py')
+    uos.rename('main.py', '_main.py')
 else:
   if not exists('main.py'):
     if exists('_main.py'):
       uos.rename('_main.py', 'main.py')
 
 if btnB_pin.value() == True:
-  import wificonfig
-  gc.collect()
   import m5cloud

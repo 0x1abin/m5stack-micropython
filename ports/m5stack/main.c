@@ -67,9 +67,12 @@ void mp_task(void *pvParameter) {
     mp_thread_init(&mp_task_stack[0], MP_TASK_STACK_LEN);
     #endif
     uart_init();
+
+#if MICROPY_PY_LCD_TERMINAL
     i2c_keyboard_master_init();
     TFT_init();
     TTF_termInit();
+#endif
 
 soft_reset:
     // initialise the stack pointer for the main thread

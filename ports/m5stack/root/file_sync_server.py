@@ -109,6 +109,7 @@ def read_node_file(node_id, path, file):
 
 def write_node_file(node_id, local_path, node_path):
     try:
+        file_size = os.path.getsize(local_path)
         f = open(local_path)
         payload = {'cmd':'CMD_WRITE_FILE', 'path':node_path, 'data':f.read()}
         payload = json.dumps(payload)

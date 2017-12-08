@@ -21,9 +21,10 @@ if btnA_pin.value() == False:
   m5.print('Booting Button A is hold.\r\nEnable safe mode.', 0, 0)
   if exists('main.py'):
     uos.rename('main.py', '_main.py')
-# else:
-#   if exists('_main.py'):
-#     uos.rename('_main.py', 'main.py')
+else:
+  if not exists('main.py'):
+    if exists('_main.py'):
+      uos.rename('_main.py', 'main.py')
 
 if btnB_pin.value() == True:
   import m5cloud

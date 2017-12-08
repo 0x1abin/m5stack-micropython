@@ -18,24 +18,6 @@ print('topic_in:'+str(topic_in))
 print('topic_repl_out:'+str(topic_repl_out))
 print('topic_repl_in:'+str(topic_repl_in))
 
-def crc_1byte(data):
-  crc_1byte = 0
-  for i in range(0,8):
-    if((crc_1byte^data)&0x01):
-      crc_1byte ^= 0x18
-      crc_1byte >>= 1
-      crc_1byte |= 0x80
-    else:
-      crc_1byte >>= 1
-    data >>= 1
-  return crc_1byte
-
-def crc_byte(data):
-  ret = 0
-  for byte in data:
-    ret = (crc_1byte(ret^byte))
-  return ret
-
 
 def load_config(config):
   try:
@@ -73,7 +55,7 @@ def list_file_tree(path = ''):
       return path_list
 
 
-def makedirs_write_file(path, data, part):
+def makedirs_write_file(path, file):
   path_list = path.rstrip('/').split('/')[:-1]
   _path = ''
   if path_list[0] == '':
@@ -84,17 +66,14 @@ def makedirs_write_file(path, data, part):
       os.mkdir(_path)
     except:
       pass
-  print('(M5Cloud) write file:%s, part:%s' % (path, part))
-  if part[0] == 1:
-    f = open(path, 'wb')
-  else:
-    f = open(path, 'ab')
-  f.write(data)
+
+  print('(M5Cloud) write file:%s' % (path))
+  f = open(path, 'wb')
+  f.write(file)
   f.close()
-  if part[0] == part[1]:
-    return_data = {'type':'REP_WRITE_FILE', 'path': path, 'data':''}
-    resp_buf = {'status':200, 'data':return_data, 'msg':''}
-    mqttc.publish(topic_out, ujson.dumps(resp_buf))
+  return_data = {'type':'REP_WRITE_FILE', 'path': path, 'data':''}
+  resp_buf = {'status':200, 'data':return_data, 'msg':''}
+  mqttc.publish(topic_out, ujson.dumps(resp_buf))
 
 
 # Received messages from subscriptions will be delivered to this callback
@@ -130,7 +109,7 @@ def mqtt_sub_cb(topic, msg):
         f.close()
 
       elif cmd == 'CMD_WRITE_FILE':
-        makedirs_write_file(jsondata.get('path'), jsondata.get('data'), jsondata.get('part'))
+        makedirs_write_file(jsondata.get('path'), jsondata.get('data'))
 
       elif cmd == 'CMD_REPL_SET':
         global repl_enable
@@ -175,7 +154,6 @@ def M5Cloud_handle(params):
   connect_wifi()
   # wificonfig.start()
   # r = http_client.post('http://ali.m5stack.com:9527/m5cloud/device/tempcode', json={"mac_id":node_id})
-
   mqtt_handle()
 
 
