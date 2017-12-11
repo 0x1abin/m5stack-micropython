@@ -114,20 +114,18 @@ def write_node_file(node_id, local_path, node_path):
         part_nums = file_size // MAX_BUFFER + 1
         f = open(local_path, 'rb')
         for p in range(1, part_nums+1):
-            # part = [p, part_nums]
-            # payload = {'cmd':'CMD_WRITE_FILE', 'path':node_path, 'part':part, 'data':f.read(MAX_BUFFER).decode('utf-8')}
-            # payload = json.dumps(payload)
-            # print("write node:%s, file:%s, part:[%d/%d]" % (node_id, local_path, part[0],part[1]))
-            # publish_node_data(node_id, payload)
-
+            part = [p, part_nums]
+            payload = {'cmd':'CMD_WRITE_FILE', 'path':node_path, 'part':part, 'data':f.read(MAX_BUFFER).decode('utf-8')}
+            payload = json.dumps(payload)
             print("write node:%s, file:%s, part:[%d/%d]" % (node_id, local_path, part[0],part[1]))
-            publish_node_data(node_id, f.read(MAX_BUFFER))
+            publish_node_data(node_id, payload)
         node[node_id]['send'] += 1
-        f.close()
     except (TypeError,ValueError) as e:
         print('ERORR:write_node_file')
         print(e)
-        pass
+    finally:
+        f.close()
+        
 
 
 def write_node_file_list(node_id, path):

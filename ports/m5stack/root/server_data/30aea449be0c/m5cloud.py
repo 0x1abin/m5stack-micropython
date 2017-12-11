@@ -3,9 +3,10 @@
 
 import os, machine, ubinascii, ujson, m5, gc
 import network, _thread, time, umqtt, uerrno
-# import http_client
+import http_client, json
 
 node_id = ubinascii.hexlify(machine.unique_id())
+node_auth = ''
 mqttc = umqtt.MQTTClient(b'M5Core-'+node_id, "mqtt.m5stack.com")
 repl_enable = False
 
@@ -35,18 +36,6 @@ def crc_byte(data):
   for byte in data:
     ret = (crc_1byte(ret^byte))
   return ret
-
-
-def load_config(config):
-  try:
-    f = open(config)
-  except:
-    print("open config fail!")
-  else:
-    c = ujson.loads(f.read())
-    ssid = c.get('wifi-ssid')
-    password = c.get('wifi-password')
-    f.close()
 
 
 def connect_wifi():
@@ -128,7 +117,8 @@ def mqtt_sub_cb(topic, msg):
           return_data = {'type':'REP_READ_FILE', 'path':path, 'data':f.read()}
           resp_buf = {'status':200, 'data':return_data, 'msg':''}
           mqttc.publish(topic_out, ujson.dumps(resp_buf))
-        f.close()
+        finally:
+          f.close()
 
       elif cmd == 'CMD_WRITE_FILE':
         makedirs_write_file(jsondata.get('path'), jsondata.get('data'), jsondata.get('part'))
@@ -172,11 +162,43 @@ def mqtt_handle():
   mqttc.disconnect()
 
 
-def M5Cloud_handle(params):
-  connect_wifi()
-  # wificonfig.start()
-  # r = http_client.post('http://ali.m5stack.com:9527/m5cloud/device/tempcode', json={"mac_id":node_id})
+def is_registered():
+  try:
+    f = open('config.json')
+    d = r.read()
+    jd = json.loads(d)
+    node_auth = jd['device']['auth_token']
+    f.close()
+  except:
+    return False
+  else:
+    return True
 
+
+def register_node():
+  r = http_client.post('http://azure.m5stack.com:9527/m5cloud/device/tempcode', json={"chip_id":node_id})
+  r.raise_for_status()
+  httptext = r.text
+  ckcode = json.loads(httptext)['data']
+  m5.lcd.println('\r\nYou Check Code:%s' % ckcode)
+  device = {}
+  device['auth_token'] = 'NULL'
+  f = open('config.json')
+  jd = json.loads(f.read())
+  f.close()
+  jd['device'] = device
+  f = open('config.json', 'w')
+  f.write(json.dumps(jd))
+  f.close()
+  
+
+
+def M5Cloud_handle(params):
+  # connect_wifi()
+  # wificonfig.start()
+  # while not is_registered():
+  register_node()
+    
   mqtt_handle()
 
 

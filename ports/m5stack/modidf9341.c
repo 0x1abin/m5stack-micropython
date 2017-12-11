@@ -161,6 +161,34 @@ STATIC mp_obj_t idf9341_print(mp_obj_t str, mp_obj_t x, mp_obj_t y) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_3(idf9341_print_obj, idf9341_print);
 
+STATIC mp_obj_t idf9341_printf(mp_obj_t str) {
+    const char *strc = mp_obj_str_get_str(str);
+    TFT_printf((char*)strc);
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(idf9341_printf_obj, idf9341_printf);
+
+STATIC mp_obj_t idf9341_setCursor(mp_obj_t x, mp_obj_t y) {
+    int xx = mp_obj_get_int(x);
+    int yy = mp_obj_get_int(y);
+    TFT_setCursor(xx, yy);
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(idf9341_setCursor_obj, idf9341_setCursor);
+
+STATIC mp_obj_t idf9341_setTextColor(mp_obj_t color) {
+    uint32_t gc = mp_obj_get_int(color);
+    TFT_setTextColor(U32toColor(gc));
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(idf9341_setTextColor_obj, idf9341_setTextColor);
+
+STATIC mp_obj_t idf9341_clear() {
+    TFT_fillScreen(U32toColor(0));
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_0(idf9341_clear_obj, idf9341_clear);
+
 
 STATIC mp_obj_t idf9341_term_stdin(mp_obj_t str) {
     const char* instr = mp_obj_str_get_str(str);
@@ -196,6 +224,7 @@ STATIC const mp_rom_map_elem_t idf9341_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_drawLine), MP_ROM_PTR(&idf9341_drawLine_obj) },
     { MP_ROM_QSTR(MP_QSTR_fill), MP_ROM_PTR(&idf9341_fillScreen_obj) },
     { MP_ROM_QSTR(MP_QSTR_fillScreen), MP_ROM_PTR(&idf9341_fillScreen_obj) },
+    { MP_ROM_QSTR(MP_QSTR_clear), MP_ROM_PTR(&idf9341_clear_obj) },
     { MP_ROM_QSTR(MP_QSTR_print), MP_ROM_PTR(&idf9341_print_obj) },
     { MP_ROM_QSTR(MP_QSTR_drawRect), MP_ROM_PTR(&idf9341_drawRect_obj) },
     { MP_ROM_QSTR(MP_QSTR_fillRect), MP_ROM_PTR(&idf9341_fillRect_obj) },
@@ -203,6 +232,10 @@ STATIC const mp_rom_map_elem_t idf9341_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_fillCircle), MP_ROM_PTR(&idf9341_fillCircle_obj) },
     { MP_ROM_QSTR(MP_QSTR_drawTriangle), MP_ROM_PTR(&idf9341_drawTriangle) },
     { MP_ROM_QSTR(MP_QSTR_fillTriangle), MP_ROM_PTR(&idf9341_fillTriangle) },
+
+    { MP_ROM_QSTR(MP_QSTR_setCursor), MP_ROM_PTR(&idf9341_setCursor_obj) },
+    { MP_ROM_QSTR(MP_QSTR_println), MP_ROM_PTR(&idf9341_printf_obj) },
+    { MP_ROM_QSTR(MP_QSTR_setTextColor), MP_ROM_PTR(&idf9341_setTextColor_obj) },
 
     { MP_ROM_QSTR(MP_QSTR_termin), MP_ROM_PTR(&idf9341_term_stdin_obj) },
     { MP_ROM_QSTR(MP_QSTR_termout_getch), MP_ROM_PTR(&idf9341_termout_getch_obj) },

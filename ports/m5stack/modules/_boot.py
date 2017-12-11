@@ -56,6 +56,11 @@ gc.collect()
 # bl.value(1)
 # lcd=display
 
+# spi = machine.SPI(2, baudrate=32000000, mosi=Pin(23, Pin.OUT), miso=Pin(19, Pin.IN), sck=Pin(18, Pin.OUT))
+
 from machine import Pin
 pin25=Pin(25, Pin.OUT);
 pin25.value(0);
+
+import m5
+m5.lcd.println('hello world!')

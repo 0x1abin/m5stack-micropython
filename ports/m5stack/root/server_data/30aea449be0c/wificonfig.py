@@ -17,7 +17,7 @@ def do_connect(ntwrk_ssid, netwrk_pass):
 	sta_if.active(True)
 	if not sta_if.isconnected():
 		print('try to connect : SSID:'+ntwrk_ssid+' PASSWD:'+netwrk_pass+' network...')
-		m5.lcd.print('try to connect: \r\nSSID:'+ntwrk_ssid+' \t\nPASSWD:'+netwrk_pass, 0, 16)
+		m5.lcd.println('try to connect: \r\nSSID:'+ntwrk_ssid+' \t\nPASSWD:'+netwrk_pass)
 		sta_if.active(True)
 		sta_if.connect(ntwrk_ssid, netwrk_pass)
 		a=0
@@ -27,11 +27,11 @@ def do_connect(ntwrk_ssid, netwrk_pass):
 			print('.', end='')
 		if sta_if.isconnected():
 			print('\nConnected. Network config:', sta_if.ifconfig())
-			m5.lcd.print("Connected. \r\nNetwork config:\r\n"+sta_if.ifconfig()[0]+', '+sta_if.ifconfig()[3], 0, 16*4)
+			m5.lcd.println("Connected. \r\nNetwork config:\r\n"+sta_if.ifconfig()[0]+', '+sta_if.ifconfig()[3])
 			return (True)
 		else : 
 			print('\nProblem. Not Connected to :'+ntwrk_ssid)
-			m5.lcd.print('Problem. Not Connected to :'+ntwrk_ssid, 0, 16*4)
+			m5.lcd.println('Problem. Not Connected to :'+ntwrk_ssid)
 			return (False)
 
 def send_response(client, payload, status_code=200):
@@ -185,9 +185,9 @@ def webstart(port=80):
 	print(b'Connect to Wifi ssid:'+ssid_name)
 	print('And connect to esp via your web browser (like 192.168.4.1)')
 	print('listening on', addr)
-	m5.lcd.print(b'Connect to Wifi ssid:'+ssid_name, 0, 16*6)
-	m5.lcd.print('via your web browser: 192.168.4.1', 0, 16*7)
-	m5.lcd.print('listening on'+str(addr), 0, 16*7)
+	m5.lcd.println(b'Connect to Wifi ssid:'+ssid_name)
+	m5.lcd.println('via your web browser: 192.168.4.1')
+	m5.lcd.println('listening on'+str(addr))
 	
 	while True:
 		# gc.collect()
@@ -272,7 +272,7 @@ def start():
 		global wlan_ap
 		wlan_ap.active(False)
 		print("ESP WiFi connected OK")
-		m5.lcd.print("ESP WiFi connected OK",0, 16*10)
+		m5.lcd.println("ESP WiFi connected OK")
 		# to import your code;
 		# import sample_mqtt.py
 	else:

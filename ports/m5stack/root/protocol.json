@@ -1,12 +1,30 @@
 // To Server
 {
-  "method":"",
+  "method":"config_node",
   "params":{
     "node_id":"30aea449be0c",
-    "data":"off"
+    "device":{
+      "name":"M5Stack-Core",
+      "id":"30aea449be0c",
+      "type":"Core",
+      "auth_token":"bsz0gyocz46mghr4"
+    }
   },
   "id":123
 }
+
+{
+  "method":"connect_node",
+  "params":["30aea449be0c"],
+  "id":123
+}
+
+{
+  "method":"disconnect_node",
+  "params":["30aea449be0c"],
+  "id":123
+}
+
 
 {
   "method":"pull_node_file",

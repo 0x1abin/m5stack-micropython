@@ -9,8 +9,9 @@
 #   https://github.com/tuupola/micropython-m5stacj
 
 from micropython import const
-from machine import Pin
+from machine import Pin, PWM
 import idf9341 as lcd
+import time
 
 _BUTTON_A_PIN = const(39)
 _BUTTON_B_PIN = const(38)
@@ -48,12 +49,21 @@ class Button:
     return not self.pin.value()
 
 class Beep:
-  def __init__(self, pin):
+  def __init__(self, pin=25):
     self.pin = PWM(Pin(pin))
+    self.pin.duty(0)
 
+  def tone(self, freq=1800, timeout=200):
+    self.pin.freq(freq)
+    self.pin.duty(512)
+    time.sleep_ms(timeout)
+    self.pin.duty(0)
+    
 
 M5Stack()
 
 BtnA = Button(_BUTTON_A_PIN)
 BtnB = Button(_BUTTON_B_PIN)
 BtnC = Button(_BUTTON_C_PIN)
+
+beep = Beep()
